@@ -6,7 +6,10 @@ _redis = None
 
 def connect(*args, **kwargs):
     global _redis
-    _redis = Redis(*args, **kwargs)
+    if args and isinstance(args[0], Redis):
+        _redis = args[0]
+    else:
+        _redis = Redis(*args, **kwargs)
     return _redis
 
 def connection():
@@ -22,6 +25,9 @@ class Field(object):
         """
         self.redis = using or connection()
         self.field_name = field_name
+
+    def exists(self):
+        return self.redis.exists(self.key())
 
     def key(self):
         """ Return the Redis key for this field. """
@@ -99,5 +105,5 @@ class Set(Field):
     # TODO: SINTER*, SUNION*, SDIFF*
 
     def all(self, reverse=False):
-        return self.to_objects(self.redis.smembers(self.key()))
+        return self.to_objects(self.redis.smembers(self.key())) or []
         #return ListQuerySet(self.to_objects, field=self)

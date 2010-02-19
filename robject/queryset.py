@@ -122,7 +122,7 @@ class SortedQuerySet(QuerySet):
         if stop == None:
             stop = 0
 
-        for id in self.field.redis.zrange(self.field.key(), start, stop-1, desc=self.reverse):
+        for id in self.field.redis.zrange(self.field.key(), start, stop-1, desc=self.reverse) or []:
             yield id
 
 
